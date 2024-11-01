@@ -1,0 +1,27 @@
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - apache
+
+  apache:
+    build: ./apache
+    ports:
+      - "8080:80"
+    volumes:
+      - ./apache/sites:/var/www/html
+
+  ftp:
+    build: ./ftp
+    ports:
+      - "21:21"
+      - "21000-21010:21000-21010"
+    environment:
+      - FTP_USER=myftpuser
+      - FTP_PASS=myftppass
+    volumes:
+      - ./apache/sites:/var/www/html

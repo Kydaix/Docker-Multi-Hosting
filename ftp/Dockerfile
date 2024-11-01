@@ -1,0 +1,4 @@
+FROM fauria/vsftpd
+ENV FTP_USER=${FTP_USER}
+ENV FTP_PASS=${FTP_PASS}
+COPY vsftpd.conf /etc/vsftpd/vsftpd.conf
