@@ -44,14 +44,16 @@ docker cp /tmp/$SITE_NAME.conf $NGINX_CONTAINER:$NGINX_CONF_DIR/
 # Recharger Nginx pour appliquer la nouvelle configuration
 docker exec $NGINX_CONTAINER nginx -s reload
 
-# Créer l'utilisateur FTP
-docker exec $FTP_CONTAINER bash -c "
-  useradd -d $FTP_HOME/$SITE_NAME -s /sbin/nologin $FTP_USER && \
-  echo -e \"$FTP_PASS\n$FTP_PASS\" | passwd $FTP_USER
-"
+# Créer l'utilisateur FTP uniquement s'il n'existe pas
+if ! docker exec $FTP_CONTAINER id -u "$FTP_USER" >/dev/null 2>&1; then
+  docker exec $FTP_CONTAINER bash -c "
+    useradd -d $FTP_HOME/$SITE_NAME -s /sbin/nologin $FTP_USER && \
+    echo -e \"$FTP_PASS\n$FTP_PASS\" | passwd $FTP_USER
+  "
+fi
 
-# Appliquer les permissions
-docker exec $FTP_CONTAINER chown -R www-data:www-data "$FTP_HOME/$SITE_NAME"
+# Appliquer les permissions, supposant que 'ftp' est le groupe utilisateur dans le conteneur vsftpd
+docker exec $FTP_CONTAINER chown -R ftp:ftp "$FTP_HOME/$SITE_NAME"
 
 # Nettoyage
 rm /tmp/$SITE_NAME.conf
