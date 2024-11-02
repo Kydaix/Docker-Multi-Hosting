@@ -1,6 +1,9 @@
+version: '3.8'
+
 services:
   nginx:
     build: ./nginx
+    container_name: nginx
     ports:
       - "80:80"
       - "443:443"
@@ -11,11 +14,13 @@ services:
 
   apache:
     build: ./apache
+    container_name: apache
     volumes:
       - apache-data:/usr/local/apache2/htdocs
 
   ftp:
     build: ./ftp
+    container_name: ftp
     ports:
       - "21:21"
       - "30000-30009:30000-30009"

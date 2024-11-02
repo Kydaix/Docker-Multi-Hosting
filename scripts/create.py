@@ -22,12 +22,12 @@ def add_site(domain_name, site_directory):
     """
 
     # Docker exec command to write nginx conf
-    command = f'docker exec -i nginx sh -c "echo \'{nginx_conf}\' > {NGINX_SITES_DIR}/{domain_name}.conf"'
-    subprocess.run(command, shell=True, check=True)
+    nginx_command = f'docker exec -i nginx sh -c "echo \'{nginx_conf}\' > {NGINX_SITES_DIR}/{domain_name}.conf"'
+    subprocess.run(nginx_command, shell=True, check=True)
 
     # Docker exec command to create apache document root
-    command = f'docker exec -i apache mkdir -p {site_directory}'
-    subprocess.run(command, shell=True, check=True)
+    apache_command = f'docker exec -i apache mkdir -p {site_directory}'
+    subprocess.run(apache_command, shell=True, check=True)
 
     print(f"{domain_name} has been added with document root: {site_directory}")
 
