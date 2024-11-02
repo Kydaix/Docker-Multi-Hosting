@@ -1,6 +1,3 @@
 FROM httpd:latest
-COPY ./sites/ /usr/local/apache2/htdocs/
-
-RUN apt-get update \
-    && apt-get install -y vim \
-    && apt-get clean
+COPY sites-available/ /etc/apache2/sites-available
+RUN a2enmod proxy proxy_http
