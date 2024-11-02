@@ -1,15 +1,14 @@
-FROM ubuntu:latest
+FROM debian:latest
 
 RUN apt-get update && \
-    apt-get install -y vsftpd && \
+    apt-get install -y proftpd && \
     apt-get clean
 
-COPY vsftpd.conf /etc/vsftpd.conf
-COPY setup_vsftpd.sh /setup_vsftpd.sh
+COPY proftpd.conf /etc/proftpd/proftpd.conf
+COPY setup_proftpd.sh /setup_proftpd.sh
 
-RUN chmod +x /setup_vsftpd.sh
+RUN chmod +x /setup_proftpd.sh
 
-# Expose FTP port
 EXPOSE 21 30000-30009
 
-CMD ["/setup_vsftpd.sh"]
+CMD ["/setup_proftpd.sh"]
