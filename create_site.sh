@@ -12,7 +12,7 @@ FTP_CONTAINER="ftp"
 # Directories
 APACHE_DOCROOT="/usr/local/apache2/htdocs"
 NGINX_CONF_DIR="/etc/nginx/conf.d"
-FTP_HOME="/home/vsftpd"
+FTP_HOME="/var/www"
 
 # Vérification des arguments
 if [ -z "$SITE_NAME" ] || [ -z "$FTP_USER" ] || [ -z "$FTP_PASS" ]; then
@@ -45,13 +45,13 @@ docker cp /tmp/$SITE_NAME.conf $NGINX_CONTAINER:$NGINX_CONF_DIR/
 docker exec $NGINX_CONTAINER nginx -s reload
 
 # Créer l'utilisateur FTP
-docker exec $FTP_CONTAINER bash -c "echo -e '$FTP_USER\n$FTP_PASS\n$FTP_PASS' | add-user"
+docker exec $FTP_CONTAINER bash -c "
+  useradd -d $FTP_HOME/$SITE_NAME -s /sbin/nologin $FTP_USER && \
+  echo -e \"$FTP_PASS\n$FTP_PASS\" | passwd $FTP_USER
+"
 
 # Appliquer les permissions
-docker exec $FTP_CONTAINER chown -R ftp:ftp "$FTP_HOME/$FTP_USER"
-
-# Ajouter le lien symbolique vers l'hébergement Apache
-docker exec $FTP_CONTAINER ln -s "$APACHE_DOCROOT/$SITE_NAME" "$FTP_HOME/$FTP_USER"
+docker exec $FTP_CONTAINER chown -R www-data:www-data "$FTP_HOME/$SITE_NAME"
 
 # Nettoyage
 rm /tmp/$SITE_NAME.conf

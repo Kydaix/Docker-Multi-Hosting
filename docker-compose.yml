@@ -33,17 +33,15 @@ services:
       - PASV_ADDRESS=127.0.0.1
       - PASV_MIN_PORT=30000
       - PASV_MAX_PORT=30009
-      - XFERLOG_STD_FORMAT=NO # Optional, set to YES if needed
+      - XFERLOG_STD_FORMAT=NO
     volumes:
-      - ftp-data:/home/vsftpd
-      - apache-data:/var/www/html:rw # Ensure path consistency
+      - apache-data:/var/www  # Monté pour aligner avec les chemins d'Apache
     networks:
       - webnet
 
 volumes:
   nginx-data:
   apache-data:
-  ftp-data:
 
 networks:
   webnet:
