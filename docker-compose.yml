@@ -6,9 +6,13 @@ services:
       - "443:443"
     depends_on:
       - apache
+    volumes:
+      - nginx-data:/etc/nginx/conf.d
 
   apache:
     build: ./apache
+    volumes:
+      - apache-data:/usr/local/apache2/htdocs
 
   ftp:
     build: ./ftp
@@ -16,3 +20,10 @@ services:
       - "21:21"
       - "30000-30009:30000-30009"
     command: /usr/sbin/pure-ftpd -l puredb:/etc/pure-ftpd/passwd -E -j -R
+    volumes:
+      - ftp-data:/home/ftpusers
+
+volumes:
+  nginx-data:
+  apache-data:
+  ftp-data:

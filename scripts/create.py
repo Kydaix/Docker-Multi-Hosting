@@ -1,7 +1,8 @@
 import os
+import subprocess
 
-NGINX_SITES_DIR = './nginx/sites'
-APACHE_SITES_DIR = './apache/my-websites'
+NGINX_SITES_DIR = '/etc/nginx/conf.d'
+APACHE_SITES_DIR = '/usr/local/apache2/htdocs'
 
 
 def add_site(domain_name, site_directory):
@@ -19,15 +20,14 @@ def add_site(domain_name, site_directory):
         }}
     }}
     """
-    with open(os.path.join(NGINX_SITES_DIR, f'{domain_name}.conf'), 'w') as f:
-        f.write(nginx_conf)
 
-    # Create the Apache directory structure
-    if not os.path.exists(APACHE_SITES_DIR):
-        os.makedirs(APACHE_SITES_DIR)
+    # Docker exec command to write nginx conf
+    command = f'docker exec -i nginx sh -c "echo \'{nginx_conf}\' > {NGINX_SITES_DIR}/{domain_name}.conf"'
+    subprocess.run(command, shell=True, check=True)
 
-    if not os.path.exists(site_directory):
-        os.makedirs(site_directory)
+    # Docker exec command to create apache document root
+    command = f'docker exec -i apache mkdir -p {site_directory}'
+    subprocess.run(command, shell=True, check=True)
 
     print(f"{domain_name} has been added with document root: {site_directory}")
 
