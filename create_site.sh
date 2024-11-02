@@ -43,6 +43,6 @@ cp $TEMPLATE_FILE $APACHE_DOC_ROOT/index.html
 sed -i "s/\[SITE_NAME\]/$SITE_NAME/g" $APACHE_DOC_ROOT/index.html
 
 # Lancement des conteneurs Docker
-docker-compose -f $DOCKER_COMPOSE_FILE up -d --build
+docker compose -f $DOCKER_COMPOSE_FILE up -d --build
 
 echo "Site $SITE_NAME avec le domaine $DOMAIN_NAME créé et lancé avec succès."
