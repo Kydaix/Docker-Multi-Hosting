@@ -29,7 +29,7 @@ services:
       - "30000-30009:30000-30009"
     volumes:
       - ftp-data:/home/ftpusers
-      - apache-data:/var/www/html:rw
+      - apache-data:/var/www/html:rw  # Ensure path consistency
     networks:
       - webnet
 

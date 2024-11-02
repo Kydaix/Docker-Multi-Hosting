@@ -44,21 +44,14 @@ docker cp /tmp/$SITE_NAME.conf $NGINX_CONTAINER:$NGINX_CONF_DIR/
 docker exec $NGINX_CONTAINER nginx -s reload
 
 # Créer l'utilisateur FTP
-docker exec $FTP_CONTAINER mkdir -p "$FTP_HOME/$FTP_USER"
-docker exec $FTP_CONTAINER pure-pw useradd $FTP_USER -u ftpuser -d "$FTP_HOME/$FTP_USER" -m
-docker exec $FTP_CONTAINER bash -c "echo '$FTP_USER:$FTP_PASS' | chpasswd || true" # Ignore le message d'erreur de chpasswd
+docker exec $FTP_CONTAINER useradd -m -d "$FTP_HOME/$FTP_USER" -s /bin/false "$FTP_USER"
+docker exec $FTP_CONTAINER bash -c "echo '$FTP_USER:$FTP_PASS' | chpasswd"
 
 # Appliquer les permissions
-docker exec $FTP_CONTAINER chown -R ftpuser:ftpgroup "$FTP_HOME/$FTP_USER"
+docker exec $FTP_CONTAINER chown -R $FTP_USER:$FTP_USER "$FTP_HOME/$FTP_USER"
 
 # Ajouter le lien symbolique vers l'hébergement Apache
 docker exec $FTP_CONTAINER ln -s "$APACHE_DOCROOT/$SITE_NAME" "$FTP_HOME/$FTP_USER"
-
-# Appliquer les changements FTP
-docker exec $FTP_CONTAINER pure-pw mkdb /etc/pure-ftpd/pureftpd.pdb
-
-# Redémarrer pure-ftpd pour appliquer les changements
-docker exec $FTP_CONTAINER pkill -HUP pure-ftpd
 
 # Nettoyage
 rm /tmp/$SITE_NAME.conf
