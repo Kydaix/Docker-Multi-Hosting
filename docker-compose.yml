@@ -9,12 +9,17 @@ services:
       - apache
     volumes:
       - nginx-data:/etc/nginx/conf.d
+      - apache-data:/var/www/html:ro
+    networks:
+      - webnet
 
   apache:
     build: ./apache
     container_name: apache
     volumes:
       - apache-data:/usr/local/apache2/htdocs
+    networks:
+      - webnet
 
   ftp:
     build: ./ftp
@@ -22,11 +27,17 @@ services:
     ports:
       - "21:21"
       - "30000-30009:30000-30009"
-    command: /usr/sbin/pure-ftpd -l puredb:/etc/pure-ftpd/passwd -E -j -R
+    command: /setup.sh && /usr/sbin/pure-ftpd -l puredb:/etc/pure-ftpd/passwd -E -j -R
     volumes:
       - ftp-data:/home/ftpusers
+      - apache-data:/var/www/html:rw
+    networks:
+      - webnet
 
 volumes:
   nginx-data:
   apache-data:
   ftp-data:
+
+networks:
+  webnet:
