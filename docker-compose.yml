@@ -22,14 +22,21 @@ services:
       - webnet
 
   ftp:
-    build: ./ftp
+    image: fauria/vsftpd
     container_name: ftp
     ports:
       - "21:21"
       - "30000-30009:30000-30009"
+    environment:
+      - FTP_USER=test
+      - FTP_PASS=test
+      - PASV_ADDRESS=127.0.0.1
+      - PASV_MIN_PORT=30000
+      - PASV_MAX_PORT=30009
+      - XFERLOG_STD_FORMAT=NO # Optional, set to YES if needed
     volumes:
-      - ftp-data:/home/ftpusers
-      - apache-data:/var/www/html:rw  # Ensure path consistency
+      - ftp-data:/home/vsftpd
+      - apache-data:/var/www/html:rw # Ensure path consistency
     networks:
       - webnet
 

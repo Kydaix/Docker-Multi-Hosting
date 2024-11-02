@@ -12,7 +12,7 @@ FTP_CONTAINER="ftp"
 # Directories
 APACHE_DOCROOT="/usr/local/apache2/htdocs"
 NGINX_CONF_DIR="/etc/nginx/conf.d"
-FTP_HOME="/home/ftpusers"
+FTP_HOME="/home/vsftpd"
 
 # Vérification des arguments
 if [ -z "$SITE_NAME" ] || [ -z "$FTP_USER" ] || [ -z "$FTP_PASS" ]; then
@@ -31,9 +31,10 @@ server {
     server_name $SITE_NAME;
 
     location / {
-        proxy_pass http://$APACHE_CONTAINER$APACHE_DOCROOT/$SITE_NAME;
+        proxy_pass http://$APACHE_CONTAINER;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
     }
 }"
 # Ajouter la configuration Nginx
@@ -44,11 +45,10 @@ docker cp /tmp/$SITE_NAME.conf $NGINX_CONTAINER:$NGINX_CONF_DIR/
 docker exec $NGINX_CONTAINER nginx -s reload
 
 # Créer l'utilisateur FTP
-docker exec $FTP_CONTAINER useradd -m -d "$FTP_HOME/$FTP_USER" -s /bin/false "$FTP_USER"
-docker exec $FTP_CONTAINER bash -c "echo '$FTP_USER:$FTP_PASS' | chpasswd"
+docker exec $FTP_CONTAINER bash -c "echo -e '$FTP_USER\n$FTP_PASS\n$FTP_PASS' | add-user"
 
 # Appliquer les permissions
-docker exec $FTP_CONTAINER chown -R $FTP_USER:$FTP_USER "$FTP_HOME/$FTP_USER"
+docker exec $FTP_CONTAINER chown -R ftp:ftp "$FTP_HOME/$FTP_USER"
 
 # Ajouter le lien symbolique vers l'hébergement Apache
 docker exec $FTP_CONTAINER ln -s "$APACHE_DOCROOT/$SITE_NAME" "$FTP_HOME/$FTP_USER"
