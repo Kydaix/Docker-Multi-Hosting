@@ -3,24 +3,24 @@ services:
     build: ./nginx
     ports:
       - "80:80"
-    volumes:
-      - ./nginx/sites:/etc/nginx/conf.d
-    depends_on:
+    links:
       - apache
 
   apache:
     build: ./apache
     volumes:
-      - ./apache/sites-available:/etc/apache2/sites-available
-      - ./apache/sites-enabled:/etc/apache2/sites-enabled
+      - ./sites:/var/www/html
 
-  ftpd:
-    build: ./ftpd
+  ftp:
+    build: ./ftp
+    volumes:
+      - ./sites:/home/vsftpd
+    environment:
+      - FTP_USER=user
+      - FTP_PASS=pass
+      - PASV_ADDRESS=127.0.0.1
+      - PASV_MIN_PORT=21100
+      - PASV_MAX_PORT=21110
     ports:
       - "21:21"
-      - "30000-30009:30000-30009"
-    volumes:
-      - ./apache/sites-available:/var/www
-    environment:
-      FTP_USER: user
-      FTP_PASS: pass
+      - "21100-21110:21100-21110"
