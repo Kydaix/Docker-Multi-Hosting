@@ -25,7 +25,8 @@ Ce projet met en place un environnement d'hébergement partagé avec Docker en u
 Pour ajouter un nouveau site, exécutez le script `create_site.sh` :
 ```bash
 cd scripts
-./create_site.sh <nom_du_site>
+./
+add_site.py <nom_du_site>
 ```
 
 ## Accès FTP
