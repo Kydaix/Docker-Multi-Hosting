@@ -27,7 +27,6 @@ services:
     ports:
       - "21:21"
       - "30000-30009:30000-30009"
-    command: /usr/sbin/pure-ftpd -l puredb:/etc/pure-ftpd/passwd -E -j -R
     volumes:
       - ftp-data:/home/ftpusers
       - apache-data:/var/www/html:rw

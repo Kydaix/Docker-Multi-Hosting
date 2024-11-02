@@ -35,9 +35,7 @@ server {
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
     }
-}
-"
-
+}"
 # Ajouter la configuration Nginx
 echo "$NGINX_CONF" > /tmp/$SITE_NAME.conf
 docker cp /tmp/$SITE_NAME.conf $NGINX_CONTAINER:$NGINX_CONF_DIR/
@@ -48,7 +46,7 @@ docker exec $NGINX_CONTAINER nginx -s reload
 # Créer l'utilisateur FTP
 docker exec $FTP_CONTAINER mkdir -p "$FTP_HOME/$FTP_USER"
 docker exec $FTP_CONTAINER pure-pw useradd $FTP_USER -u ftpuser -d "$FTP_HOME/$FTP_USER" -m
-docker exec $FTP_CONTAINER bash -c "echo '$FTP_USER:$FTP_PASS' | chpasswd"
+docker exec $FTP_CONTAINER bash -c "echo '$FTP_USER:$FTP_PASS' | chpasswd || true" # Ignore le message d'erreur de chpasswd
 
 # Appliquer les permissions
 docker exec $FTP_CONTAINER chown -R ftpuser:ftpgroup "$FTP_HOME/$FTP_USER"
@@ -57,7 +55,10 @@ docker exec $FTP_CONTAINER chown -R ftpuser:ftpgroup "$FTP_HOME/$FTP_USER"
 docker exec $FTP_CONTAINER ln -s "$APACHE_DOCROOT/$SITE_NAME" "$FTP_HOME/$FTP_USER"
 
 # Appliquer les changements FTP
-docker exec $FTP_CONTAINER pure-pw mkdb
+docker exec $FTP_CONTAINER pure-pw mkdb /etc/pure-ftpd/pureftpd.pdb
+
+# Redémarrer pure-ftpd pour appliquer les changements
+docker exec $FTP_CONTAINER pkill -HUP pure-ftpd
 
 # Nettoyage
 rm /tmp/$SITE_NAME.conf
