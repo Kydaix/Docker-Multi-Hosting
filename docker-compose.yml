@@ -1,27 +1,13 @@
 services:
-  reverse-proxy:
+  nginx:
     image: nginx:latest
+    container_name: nginx_reverse_proxy
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./apache/sites:/var/www/html:ro
+      - ./reverse-proxy/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
       - "80:80"
-    depends_on:
-      - apache
+    networks:
+      - webnet
 
-  apache:
-    build: ./apache
-    volumes:
-      - ./apache/sites:/var/www/html
-    expose:
-      - "80"
-
-  ftp:
-    build: ./ftp
-    volumes:
-      - ./apache/sites:/var/www/html
-    environment:
-      FTP_USER: "ftpuser"
-      FTP_PASS: "ftp_password"
-    ports:
-      - "21:21"
+networks:
+  webnet:

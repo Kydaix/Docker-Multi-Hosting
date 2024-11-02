@@ -1,17 +1,32 @@
 #!/bin/bash
 
 SITE_NAME=$1
-SITE_PATH="./apache/sites/$SITE_NAME"
 
 if [ -z "$SITE_NAME" ]; then
-    echo "Veuillez spécifier un nom pour le site."
-    exit 1
+  echo "Usage: $0 <site-name>"
+  exit 1
 fi
 
-mkdir -p $SITE_PATH
+SITE_DIR="./sites/$SITE_NAME"
+TEMPLATE_DIR="./sites/site_template"
 
-# Créer un fichier index par défaut
-echo "<html><body><h1>Bienvenue sur $SITE_NAME</h1></body></html>" > $SITE_PATH/index.html
+# Copy template to new site directory
+cp -r $TEMPLATE_DIR $SITE_DIR
 
-echo "Site '$SITE_NAME' créé dans $SITE_PATH."
-docker compose restart apache
+# Create Dockerfile for the new site
+cat > $SITE_DIR/Dockerfile <<EOL
+FROM httpd:latest
+COPY apache2.conf /usr/local/apache2/conf/apache2.conf
+COPY site.conf /usr/local/apache2/conf/extra/site.conf
+RUN apt-get update && apt-get install -y proftpd
+COPY ftpd.conf /etc/proftpd/proftpd.conf
+EOL
+
+# Build Docker Image
+docker build -t ${SITE_NAME}_image $SITE_DIR
+
+# Run Docker Container
+docker run -d --name $SITE_NAME -p 0.0.0.0:$(shuf -i 8000-9000 -n 1):80 --network=webnet ${SITE_NAME}_image
+
+# Print success message
+echo "Site $SITE_NAME created and running."
