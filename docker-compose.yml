@@ -1,26 +1,27 @@
 services:
-  nginx:
-    build: ./nginx
+  reverse-proxy:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./apache/sites:/var/www/html:ro
     ports:
       - "80:80"
-    links:
+    depends_on:
       - apache
 
   apache:
     build: ./apache
     volumes:
-      - ./sites:/var/www/html
+      - ./apache/sites:/var/www/html
+    expose:
+      - "80"
 
   ftp:
     build: ./ftp
     volumes:
-      - ./sites:/home/vsftpd
+      - ./apache/sites:/var/www/html
     environment:
-      - FTP_USER=user
-      - FTP_PASS=pass
-      - PASV_ADDRESS=127.0.0.1
-      - PASV_MIN_PORT=21100
-      - PASV_MAX_PORT=21110
+      FTP_USER: "ftpuser"
+      FTP_PASS: "ftp_password"
     ports:
       - "21:21"
-      - "21100-21110:21100-21110"

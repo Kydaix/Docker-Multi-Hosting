@@ -1,24 +1,36 @@
-# Projet d'Hébergement Partagé avec Docker
+# Hébergement Partagé avec Docker
+
+## Description
+Ce projet met en place un environnement d'hébergement partagé avec Docker en utilisant un reverse-proxy Nginx, plusieurs containers Apache pour l'hébergement sécurisé des sites et un accès FTP pour chaque site.
 
 ## Prérequis
 - Docker
 - Docker Compose
 
-## Configuration
+## Installation
 
-### Ajouter un nouveau site
-1. Créez un nouveau dossier pour le site dans le répertoire `sites`.
-2. Ajoutez un `Dockerfile`, un fichier de configuration Apache `site.conf` et le contenu `www/`.
-3. Ajoutez la configuration du site dans `nginx/conf.d/default.conf`.
+1. Cloner le dépôt :
+    ```bash
+    git clone <votre-repo-url>
+    cd shared-hosting
+    ```
 
-### Démarrer les services
-```shell
-docker-compose up -d
+2. Construire et démarrer les services :
+    ```bash
+    docker-compose up --build -d
+    ```
+
+## Ajouter un site
+
+Pour ajouter un nouveau site, exécutez le script `create_site.sh` :
+```bash
+cd scripts
+./create_site.sh <nom_du_site>
 ```
 
-### Ajouter un site sans redémarrer Nginx
-1. Ajoutez la configuration du nouveau site dans `nginx/conf.d/`.
-2. Utilisez la commande suivante :
-```shell
-docker exec -it <nginx_container_id> nginx -s reload
-```
+## Accès FTP
+
+Chaque site disposera d'un accès FTP dans le répertoire `/home/vsftpd/<nom_du_site>`.
+
+## Notes
+Les fichiers de site sont situés dans le répertoire `./sites` sur la machine hôte.

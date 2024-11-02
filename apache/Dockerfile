@@ -1,2 +1,5 @@
 FROM httpd:latest
-COPY vhost.conf /usr/local/apache2/conf/httpd.conf
+
+COPY ./sites /usr/local/apache2/htdocs/
+
+EXPOSE 80
