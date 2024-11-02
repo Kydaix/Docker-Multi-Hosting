@@ -1,27 +1,18 @@
 services:
   nginx:
     build: ./nginx
-    container_name: reverse-proxy
     ports:
       - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-    networks:
-      - webnet
+      - "443:443"
+    depends_on:
+      - apache
+
+  apache:
+    build: ./apache
 
   ftp:
     build: ./ftp
-    container_name: ftp-server
-    environment:
-      - FTP_USER=user
-      - FTP_PASS=pass
     ports:
       - "21:21"
-    volumes:
-      - ./data/ftp:/home/ftpusers
-    networks:
-      - webnet
-
-networks:
-  webnet:
-    driver: bridge
+      - "30000-30009:30000-30009"
+    command: /usr/sbin/pure-ftpd -l puredb:/etc/pure-ftpd/passwd -E -j -R

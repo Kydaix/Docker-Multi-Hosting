@@ -1,3 +1,2 @@
-FROM delfer/alpine-ftp-server
-ENV FTP_USER user
-ENV FTP_PASS pass
+FROM stilliard/pure-ftpd:hardened
+COPY users /etc/pure-ftpd/passwd
