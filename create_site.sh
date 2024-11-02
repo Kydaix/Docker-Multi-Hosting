@@ -13,6 +13,7 @@ FTP_CONTAINER="ftp"
 APACHE_DOCROOT="/usr/local/apache2/htdocs"
 NGINX_CONF_DIR="/etc/nginx/conf.d"
 FTP_HOME="/var/www"
+TEMPLATE_FILE="apache/index.html"
 
 # Vérification des arguments
 if [ -z "$SITE_NAME" ] || [ -z "$FTP_USER" ] || [ -z "$FTP_PASS" ]; then
@@ -23,6 +24,12 @@ fi
 # Créer le répertoire du site dans le conteneur Apache
 docker exec $APACHE_CONTAINER mkdir -p "$APACHE_DOCROOT/$SITE_NAME"
 docker exec $APACHE_CONTAINER chown -R www-data:www-data "$APACHE_DOCROOT/$SITE_NAME"
+
+# Copier le template index.html dans le nouveau répertoire du site
+docker cp $TEMPLATE_FILE $APACHE_CONTAINER:$APACHE_DOCROOT/$SITE_NAME/index.html
+
+# Fixer les permissions pour le template index.html
+docker exec $APACHE_CONTAINER chown www-data:www-data "$APACHE_DOCROOT/$SITE_NAME/index.html"
 
 # Créer la configuration Nginx pour le site
 NGINX_CONF="
@@ -54,6 +61,9 @@ fi
 
 # Appliquer les permissions, supposant que 'ftp' est le groupe utilisateur dans le conteneur vsftpd
 docker exec $FTP_CONTAINER chown -R ftp:ftp "$FTP_HOME/$SITE_NAME"
+
+# Redémarrer le service vsftpd pour prendre en compte le nouvel utilisateur
+docker exec $FTP_CONTAINER service vsftpd restart
 
 # Nettoyage
 rm /tmp/$SITE_NAME.conf
