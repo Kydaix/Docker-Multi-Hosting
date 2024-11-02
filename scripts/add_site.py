@@ -37,9 +37,9 @@ def add_site(site_name, domain_name):
     nginx_conf.write(nginx_config)
 
   # Build and start the new Apache container
-  subprocess.run(["docker compose", "build", site_name], check=True)
-  subprocess.run(["docker compose", "up", "-d", site_name], check=True)
-  subprocess.run(["docker compose", "restart", "nginx"], check=True)
+  subprocess.run(["docker", "compose", "build", site_name], check=True)
+  subprocess.run(["docker", "compose", "up", "-d", site_name], check=True)
+  subprocess.run(["docker", "compose", "restart", "nginx"], check=True)
 
   print(f"Site {site_name} ajouté avec succès pour le domaine {domain_name}.")
 
